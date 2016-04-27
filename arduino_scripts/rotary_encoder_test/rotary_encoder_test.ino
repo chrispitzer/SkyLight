@@ -41,20 +41,19 @@ Do this ten times...
 #define BLACK  0x000000
 int NOLED = 255;
 
-int ledloop[28] = {
+int ledloop[10] = {
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 };
 
 int LOOP_LENGTH = 28;
 
-int old_color = 28;
-int new_color = 0;
-
-long old_knob = 0;
 int hue = 0;
 int toRGB[3];
+long old_knob = 0;
+long new_knob = 0;
 
-int convertArrayTo32b(int *array){
+int convertArrayTo32b(int *array)
+{
   int ret = 0;
   for(int i=0;i<3;i++){
     ret += (array[i] << 8*i);
@@ -64,38 +63,32 @@ int convertArrayTo32b(int *array){
 
 void loop() {
 
-/*
-  long new_knob = knob.read();
+
+  new_knob = knob.read();
   if (new_knob != old_knob) {
-    old_color = new_color;
     if (new_knob > old_knob) {
       // turn clockwise
-      new_color += 1;      
+      hue = (hue + 1) % 360;
     } else {
       // turn counterclockwise
-      new_color -= 1;      
+      hue--;
+      if (hue < 0){
+        hue = 360;  
+      }
     }
     old_knob = new_knob;
-    if (new_color > LOOP_LENGTH) {
-      new_color = 0;
-    }
-    if (new_color < 0) {
-      new_color = LOOP_LENGTH-1;
-    }
   }
-*/
-  hue += 1;
-  hue = hue % 360;
 
-  H2R_HSBtoRGB(hue, 99, 99, toRGB);
-  int color = convertArrayTo32b(toRGB);
+  for(int i = 0; i < 10; i++){      
+    H2R_HSBtoRGB( (hue + 10*i) % 360, 99, 99, toRGB);
+    leds.setPixel(i, convertArrayTo32b(toRGB));
+  }
+
   
 
-  leds.setPixel(0, color);
-  
   //leds.setPixel(ledloop[old_color], BLACK);
 
   leds.show();
-  int microsec = 10000; // 2000000 / leds.numPixels();  // change them all in 2 seconds
-  delayMicroseconds(microsec);
+  //int microsec = 10000; // 2000000 / leds.numPixels();  // change them all in 2 seconds
+  //delayMicroseconds(microsec);
 }
